@@ -18,6 +18,7 @@ export default InstructionsText
 
 const styles = StyleSheet.create({
   text: {
+    fontFamily: "open-sans",
     color: COLORS.accent500,
     fontSize: 16,
     textAlign: "center"

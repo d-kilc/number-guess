@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react"
 import { ImageBackground, StyleSheet, Text, SafeAreaView } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient"
+import { useFonts } from "expo-font"
+import AppLoading from "expo-app-loading"
 
 import StartGameScreen from './screens/StartGameScreen'
 import GameScreen from './screens/GameScreen'
@@ -10,27 +12,45 @@ import { COLORS } from "./constants/colors"
 
 const App = () => {
   const [number, setNumber] = useState<number | null>(null)
+  const [guessRounds, setGuessRounds] = useState<number>(0)
   const [gameOver, setGameOver] = useState(false)
+
+  const [fontsLoaded] = useFonts({
+    "open-sans": require("./assets/fonts/OpenSans-Regular.ttf"),
+    "open-sans-bold": require("./assets/fonts/OpenSans-Bold.ttf")
+  })
+
+  if (!fontsLoaded) return <AppLoading />
 
   const handleStartGame = (chosenNumber: number) => {
     setNumber(chosenNumber)
     setGameOver(false)
   }
 
-  const handleGameOver = () => setGameOver(true)
+  const handleGameOver = (numRounds: number) => {
+    setGameOver(true)
+    setGuessRounds(numRounds)
+  }
 
   const handleRestart = () => {
-    setGameOver(false)
     setNumber(null)
+    setGuessRounds(0)
   }
 
   let screen: ReactNode
   if (gameOver && number) {
-    screen = <GameOverScreen onRestart={handleRestart}/>
+    screen = <GameOverScreen
+      onRestart={handleRestart}
+      userNumber={number}
+      rounds={guessRounds}
+    />
   } else if (!number) {
     screen = <StartGameScreen onConfirm={handleStartGame} />
   } else {
-    screen = <GameScreen onGameOver={handleGameOver} chosenNumber={number}/>
+    screen = <GameScreen
+      onGameOver={handleGameOver}
+      chosenNumber={number}
+    />
   }
 
   return (

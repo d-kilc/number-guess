@@ -1,14 +1,15 @@
 import { useState, useEffect, type FC } from "react"
-import { Text, View, StyleSheet, Alert } from "react-native"
+import { View, StyleSheet, Alert, FlatList } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import Title from "../components/ui/Title"
 import NumberContainer from "../components/game/NumberContainer"
 import Card from "../components/game/Card"
+import GuessItem from "../components/game/GuessItem"
 import PrimaryButton from "../components/ui/PrimaryButton"
 import InstructionsText from "../components/ui/InstructionsText"
 
 type GameScreenProps = {
-  onGameOver(): void
+  onGameOver(numRounds: number): void
   chosenNumber: number
 }
 
@@ -24,6 +25,7 @@ const calculateRandom = (min: number, max: number, exclude?: number) => {
 const GameScreen: FC<GameScreenProps> = ({ chosenNumber, onGameOver }) => {
   const initialGuess = calculateRandom(1, 100, chosenNumber)
   const [currentGuess, setCurrentGuess] = useState(initialGuess)
+  const [guesses, setGuesses] = useState<Array<number>>([initialGuess])
   
   const handleNextGuess = (direction: "lower" | "higher") => {
     if (
@@ -37,16 +39,22 @@ const GameScreen: FC<GameScreenProps> = ({ chosenNumber, onGameOver }) => {
     else lowBoundary = currentGuess + 1
     const generated = calculateRandom(lowBoundary, highBoundary, currentGuess)
     setCurrentGuess(generated)
+    setGuesses((prev) => [generated, ...prev])
   }
 
   useEffect(() => {
     console.log("Guess", currentGuess)
-    if (currentGuess === chosenNumber) onGameOver()
+    if (currentGuess === chosenNumber) onGameOver(guesses.length)
   }, [currentGuess, chosenNumber, onGameOver])
+
+  useEffect(() => {
+    lowBoundary = 1
+    highBoundary = 100
+  }, [])
 
   return (
     <View style={styles.container}>
-    <Title>Opponent's Guess</Title>
+      <Title>Opponent's Guess</Title>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card>
         <View>
@@ -65,6 +73,18 @@ const GameScreen: FC<GameScreenProps> = ({ chosenNumber, onGameOver }) => {
           </View>
         </View>
       </Card>
+      <View style={styles.guessContainer}>
+        <FlatList
+          data={guesses}
+          keyExtractor={(g) => String(g)}
+          renderItem={(g) => (
+            <GuessItem
+              guess={g.item}
+              round={guesses.length - g.index}
+            />
+          )}
+        />
+      </View>
     </View>
   )
 }
@@ -79,5 +99,9 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: "row",
     gap: 8
+  },
+  guessContainer: {
+    flex: 1,
+    padding: 16
   }
 })
