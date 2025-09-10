@@ -1,5 +1,5 @@
 import { type FC } from "react"
-import { Text, View, StyleSheet, Image } from "react-native"
+import { ScrollView, Text, View, StyleSheet, Image, useWindowDimensions } from "react-native"
 import PrimaryButton from "../components/ui/PrimaryButton"
 import Title from "../components/ui/Title"
 import { COLORS } from "../constants/colors"
@@ -15,17 +15,24 @@ const GameOverScreen: FC<GameOverScreenProps> = ({
   userNumber,
   rounds
 }) => {
+  const { width, height } = useWindowDimensions()
+
+  let imageSize = 300
+  if (width < 700) imageSize = 150
+  if (height < 500) imageSize = 80
   return (
-    <View style={styles.container}>
-      <Title>Game Over</Title>
-      <View style={styles.imageContainer}>
-        <Image source={require("../assets/images/success.png")} style={styles.image}/>
+    <ScrollView style={{flex: 1}}>
+      <View style={styles.container}>
+        <Title>Game Over</Title>
+        <View style={[styles.imageContainer, { width: imageSize, height: imageSize, borderRadius: imageSize / 2}]}>
+          <Image source={require("../assets/images/success.png")} style={styles.image}/>
+        </View>
+        <Text style={styles.summaryText}>
+          Your phone needed <Text style={styles.textHighlighted}>{rounds}</Text> rounds to guess the number <Text style={styles.textHighlighted}>{userNumber}</Text>.
+        </Text>
+        <PrimaryButton onPress={onRestart}>New Game</PrimaryButton>
       </View>
-      <Text style={styles.summaryText}>
-        Your phone needed <Text style={styles.textHighlighted}>{rounds}</Text> rounds to guess the number <Text style={styles.textHighlighted}>{userNumber}</Text>.
-      </Text>
-      <PrimaryButton onPress={onRestart}>New Game</PrimaryButton>
-    </View>
+    </ScrollView>
   )
 }
 
@@ -39,9 +46,9 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   imageContainer: {
-    borderRadius: 150,
-    width: 300,
-    height: 300,
+    // borderRadius: deviceWidth < 380 ? 75 : 150,
+    // width: deviceWidth < 380 ? 150 : 300,
+    // height: deviceWidth < 380 ? 160 : 300,
     borderWidth: 3,
     borderColor: COLORS.white,
     overflow: "hidden",

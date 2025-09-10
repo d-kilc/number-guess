@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from "react"
-import { ImageBackground, StyleSheet, Text, SafeAreaView } from 'react-native'
+import { Fragment, useState, type ReactNode } from "react"
+import { ImageBackground, StyleSheet, SafeAreaView } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient"
 import { useFonts } from "expo-font"
 import AppLoading from "expo-app-loading"
+import { StatusBar } from "expo-status-bar"
 
 import StartGameScreen from './screens/StartGameScreen'
 import GameScreen from './screens/GameScreen'
@@ -54,21 +55,24 @@ const App = () => {
   }
 
   return (
-    <LinearGradient
-      colors={[COLORS.primary700, COLORS.accent500]}
-      style={styles.appContainer}
-    >
-      <ImageBackground
-        source={require("./assets/images/background.png")}
-        resizeMode="cover"
-        style={{ flex: 1 }}
-        imageStyle={{ opacity: 0.1 }}
+    <Fragment>
+      <StatusBar style="light"/>
+      <LinearGradient
+        colors={[COLORS.primary700, COLORS.accent500]}
+        style={styles.appContainer}
       >
-        <SafeAreaView style={{ flex: 1 }}>
-          {screen}
-        </SafeAreaView>
-      </ImageBackground>
-    </LinearGradient>
+        <ImageBackground
+          source={require("./assets/images/background.png")}
+          resizeMode="cover"
+          style={{ flex: 1 }}
+          imageStyle={{ opacity: 0.1 }}
+        >
+          <SafeAreaView style={{ flex: 1 }}>
+            {screen}
+          </SafeAreaView>
+        </ImageBackground>
+      </LinearGradient>
+    </Fragment>
   )
 }
 

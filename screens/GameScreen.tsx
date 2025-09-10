@@ -1,5 +1,5 @@
-import { useState, useEffect, type FC } from "react"
-import { View, StyleSheet, Alert, FlatList } from "react-native"
+import { useState, useEffect, Fragment, type FC } from "react"
+import { View, StyleSheet, Alert, FlatList, useWindowDimensions} from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import Title from "../components/ui/Title"
 import NumberContainer from "../components/game/NumberContainer"
@@ -23,6 +23,8 @@ const calculateRandom = (min: number, max: number, exclude?: number) => {
 }
 
 const GameScreen: FC<GameScreenProps> = ({ chosenNumber, onGameOver }) => {
+  const { width, height } = useWindowDimensions()
+
   const initialGuess = calculateRandom(1, 100, chosenNumber)
   const [currentGuess, setCurrentGuess] = useState(initialGuess)
   const [guesses, setGuesses] = useState<Array<number>>([initialGuess])
@@ -52,27 +54,54 @@ const GameScreen: FC<GameScreenProps> = ({ chosenNumber, onGameOver }) => {
     highBoundary = 100
   }, [])
 
+  let content: React.ReactNode = width > 800
+    ? ( // landscra
+      <Fragment>
+        <View>
+          <View style={styles.buttonsContainerWide}>
+            <View style={{flex: 1}}>
+              <PrimaryButton onPress={() => handleNextGuess("lower")}>
+                <Ionicons name="remove" />
+              </PrimaryButton>
+            </View>
+            <NumberContainer>{currentGuess}</NumberContainer>
+            <View style={{flex: 1}}>
+              <PrimaryButton onPress={() => handleNextGuess("higher")}>
+                <Ionicons name="add"/>
+              </PrimaryButton>
+            </View>
+          </View>
+        </View>
+      </Fragment>
+    )
+    : (
+      <Fragment>
+        <NumberContainer>{currentGuess}</NumberContainer>
+        <Card>
+          <View>
+            <InstructionsText>Higher or Lower?</InstructionsText>
+          </View>
+          <View style={styles.buttonsContainer}>
+            <View style={{flex: 1}}>
+              <PrimaryButton onPress={() => handleNextGuess("lower")}>
+                <Ionicons name="remove" />
+              </PrimaryButton>
+            </View>
+            <View style={{flex: 1}}>
+              <PrimaryButton onPress={() => handleNextGuess("higher")}>
+                <Ionicons name="add"/>
+              </PrimaryButton>
+            </View>
+          </View>
+        </Card>
+      </Fragment>
+    )
+
+
   return (
     <View style={styles.container}>
       <Title>Opponent's Guess</Title>
-      <NumberContainer>{currentGuess}</NumberContainer>
-      <Card>
-        <View>
-          <InstructionsText>Higher or Lower?</InstructionsText>
-        </View>
-        <View style={styles.buttonsContainer}>
-          <View style={{flex: 1}}>
-            <PrimaryButton onPress={() => handleNextGuess("lower")}>
-              <Ionicons name="remove" />
-            </PrimaryButton>
-          </View>
-          <View style={{flex: 1}}>
-            <PrimaryButton onPress={() => handleNextGuess("higher")}>
-              <Ionicons name="add"/>
-            </PrimaryButton>
-          </View>
-        </View>
-      </Card>
+      { content }
       <View style={styles.guessContainer}>
         <FlatList
           data={guesses}
@@ -94,11 +123,16 @@ export default GameScreen
 const styles = StyleSheet.create({
   container : {
     flex: 1,
-    padding: 24
+    padding: 24,
+    // alignItems: "center"
   },
   buttonsContainer: {
     flexDirection: "row",
     gap: 8
+  },
+  buttonsContainerWide: {
+    flexDirection: "row",
+    alignItems: "center"
   },
   guessContainer: {
     flex: 1,
